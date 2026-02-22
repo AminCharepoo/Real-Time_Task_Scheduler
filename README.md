@@ -1,4 +1,7 @@
 ## Real-Time Task Scheduler - Amin Charepoo, Dani Robinson, Manu Geronimo
+This project is a custom real-time task scheduler on the Raspberry Pi Pico using C++.  
+It manages multiple tasks with priorities and deadlines, can preempt tasks, and responds to hardware interrupts.  
+
 
 ### Run command:
 
