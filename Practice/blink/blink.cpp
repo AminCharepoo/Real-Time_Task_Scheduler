@@ -8,7 +8,7 @@ int main() {
     // --- Loop (runs forever) ---
     while (true) {
         gpio_put(25, 1);               // LED on
-        sleep_ms(1000);                 // wait 500ms
+        sleep_ms(1000);                 // wait 1000ms
         gpio_put(25, 0);               // LED off
         sleep_ms(1000);
     }
