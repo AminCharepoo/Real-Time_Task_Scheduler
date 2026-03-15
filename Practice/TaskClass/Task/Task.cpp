@@ -71,22 +71,21 @@ public:
 
     void enqueue(Task* task) { // have to implement enqueue here since it needs to access the Task's priority and behavior
         if (full()) return;
-
         if (task->getPriority() == VIP) { vip_pending = true; } // if the new task is VIP, set the vip_pending flag
-
-        for (int i = head; i != tail; i = (i + 1) % QUEUE_SIZE) { // go through each task and compare priorities
-            if (tasks[i]->getPriority() < task->getPriority()) { // if the new task has higher priority, insert it before the current task
-                push_front(task);
-                return;
-            }
-        }
         push_back(task);
     }
 
 
     Task* dequeue() {
         if (empty()) return nullptr;
-        Task* task = tasks[head]; // get task at head
+
+        int highest_priority_index = head; 
+        for (int i = (head + 1) % QUEUE_SIZE; i != tail; i = (i+1) % QUEUE_SIZE) {
+            if (tasks[i]->getPriority() > tasks[highest_priority_index]->getPriority()) { highest_priority_index = i; }
+        }
+
+        Task* task = tasks[highest_priority_index]; // get task at head
+        tasks[highest_priority_index] = tasks[head];
         head = (head + 1) % QUEUE_SIZE; // move head forward
         return task;    
     }
@@ -209,6 +208,7 @@ int main()
         Task* t = queue.dequeue();
 
         if (t){
+            t->execute();
             if (vip_pending && t->getInterruptBehavior() == FRONT_QUEUE) { interrupted_task = t; } // if there is a VIP task waiting and the current task should be requeued at front store it in interrupted task
 
             if (t->getPriority() == VIP) {
