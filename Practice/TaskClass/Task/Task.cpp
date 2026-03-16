@@ -199,8 +199,6 @@ int main()
     button.setup();
 
     printf("Setup complete\n");
-    
-    bool debugmesagesent = false;
 
     Task* interrupted_task = nullptr;
 
