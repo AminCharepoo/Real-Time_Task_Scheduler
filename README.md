@@ -8,8 +8,13 @@ It manages multiple tasks with priorities and deadlines, can preempt tasks, and 
 ### File Structure
 
 ```
-[Name]/
-├── ECEE2140 - Iteration2.pdf
+Real-Time_Task_Scheduler/
+│
+├── README.md
+├── docs/
+│   └── ECEE2140 - Iteration2.pdf
+├── pseudocode/
+│   └──
 ├── include/
 │   └── 
 ├── src/
