@@ -1,13 +1,14 @@
 #include "ButtonTask.h"
 
-ButtonTask::ButtonTask(std::string name, 
+ButtonTask::ButtonTask(
+    std::string name, 
     priority_level priority, 
-    interrupt_behavior interrupt_behavior, 
+    interrupt_behavior behavior, 
     int button_pin, 
     void (*action)(),
     Queue& queue
     ) : 
-    Task(name, priority, interrupt_behavior, queue), 
+    Task(name, priority, behavior, queue), 
     button_pin(button_pin), 
     action(action) 
     {

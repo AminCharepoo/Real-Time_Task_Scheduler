@@ -15,7 +15,7 @@ public:
     ButtonTask(
         std::string name, 
         priority_level priority, 
-        interrupt_behavior interrupt_behavior, 
+        interrupt_behavior behavior, 
         int button_pin, 
         void (*action)(), 
         Queue& queue
