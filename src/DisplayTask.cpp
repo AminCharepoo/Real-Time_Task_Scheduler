@@ -21,6 +21,7 @@ DisplayTask::~DisplayTask() {
     cancel_repeating_timer(&timer);
 }
 
+// Toggles the enable pin of the LCD to latch data/commands.
 void DisplayTask::lcd_toggle_enable(uint8_t data) {
     uint8_t buf;
     buf = data | 0x04;
@@ -31,6 +32,7 @@ void DisplayTask::lcd_toggle_enable(uint8_t data) {
     sleep_us(50);
 }
 
+// Sends a byte to the LCD in 4-bit mode by splitting it into two nibbles.
 void DisplayTask::lcd_send_byte(uint8_t val, int mode) {
     uint8_t high = (val & 0xF0) | mode | 0x08;
     uint8_t low  = ((val << 4) & 0xF0) | mode | 0x08;
@@ -40,20 +42,26 @@ void DisplayTask::lcd_send_byte(uint8_t val, int mode) {
     lcd_toggle_enable(low);
 }
 
+
+// Sends a command byte to the LCD
 void DisplayTask::lcd_cmd(uint8_t command) {
     lcd_send_byte(command, 0);
 }
 
+
+// Sends a single character to the LCD for display.
 void DisplayTask::lcd_char(char c) {
     lcd_send_byte(c, 1);
 }
 
+// Displays a string on the LCD by sending each character.
 void DisplayTask::lcd_string(const char* str) {
     while(*str) {
         lcd_char(*str++);
     }
 }
 
+// Sets the LCD cursor to the beginning of line 0 (top) or line 1 (bottom).
 void DisplayTask::lcd_set_cursor(int line) {
     if (line == 0) {
         lcd_cmd(0x80);
@@ -62,11 +70,13 @@ void DisplayTask::lcd_set_cursor(int line) {
     }
 }
 
+// Clears the LCD display and resets the cursor to home position.
 void DisplayTask::lcd_clear() {
     lcd_cmd(0x01);
     sleep_ms(2);
 }
 
+// Initializes the LCD in 4-bit mode with 2 lines, cursor off, and backlight on.
 void DisplayTask::lcd_init() {
     lcd_cmd(0x33);
     lcd_cmd(0x32);
@@ -75,6 +85,7 @@ void DisplayTask::lcd_init() {
     lcd_clear();
 }
 
+// Initializes I2C communication, configures GPIO pins with pull-ups, initializes the LCD, and starts the repeating timer for character scrolling.
 void DisplayTask::setup() {
     // Initialize I2C
     i2c_init(I2C_PORT, 100000);
@@ -91,6 +102,7 @@ void DisplayTask::setup() {
     add_repeating_timer_ms(interval_ms, timer_callback, this, &timer);
 }
 
+// Timer ISR that sets tick_flag to signal the main loop that it's time to display the next character. Returns true to keep the timer repeating.
 bool DisplayTask::timer_callback(struct repeating_timer *t) {
     DisplayTask* task = static_cast<DisplayTask*>(t->user_data);
     task->tick_flag = true;
@@ -122,4 +134,9 @@ void DisplayTask::execute() {
     lcd_clear();
     lcd_set_cursor(0);
     lcd_string(display_str.c_str());
+}
+
+DisplayTask::setMessage(const std::string& msg) {
+    message = msg;
+    char_index = 0; // reset index to start of new message
 }

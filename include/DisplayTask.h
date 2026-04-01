@@ -23,7 +23,7 @@ private:
     struct repeating_timer timer;
     volatile bool tick_flag;
     
-    // vIP preemption
+    // VIP preemption
     volatile bool* vip_flag;
     
     // LCD low-level functions
@@ -54,6 +54,8 @@ public:
     
     void setup();
     void execute() override;
+
+    void setMessage(const std::string& msg);
 };
 
 #endif
