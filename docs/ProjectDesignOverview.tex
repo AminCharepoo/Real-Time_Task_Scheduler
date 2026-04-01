@@ -1,0 +1,250 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{ragged2e}
+\usepackage{graphicx}
+
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+
+\title{\textbf{Real-Time Scheduler --- Project Design Document}}
+\author{Rebecca Robinson \and Manu Geronimo \and Amin Charepoo}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+%% ─────────────────────────────────────────────
+\section*{Basic Functionalities}
+
+The table below lists the main functionalities the project will implement,
+including a brief description, expected inputs and outputs, and each
+functionality's contribution to the overall system.
+
+\begin{longtable}{P{2.8cm} P{3.2cm} P{2.2cm} P{2.8cm} P{3cm}}
+\toprule
+\textbf{Functionality} & \textbf{Description} & \textbf{Input} & \textbf{Output} & \textbf{Contribution} \\
+\midrule
+\endhead
+
+Task Scheduling
+& Manages a priority queue of tasks, ensuring higher-priority tasks are
+  completed before lower-priority ones.
+& Task object with a priority level
+& Tasks dequeued and executed in the correct order
+& Determines execution order across the entire system. \\
+\midrule
+
+Button Interrupt Handling
+& Detects a button press and enqueues the corresponding task.
+& GPIO pin signal
+& Task enqueued
+& Allows user input to trigger tasks. \\
+\midrule
+
+Timer-Based Interrupt
+& Uses a repeating hardware timer at a configurable interval and enqueues
+  the given task each time it fires.
+& Timer interval (ms)
+& Task enqueued periodically
+& Enables periodic automated behaviour without user input. \\
+\midrule
+
+VIP Task Interrupt
+& When a VIP-priority task is enqueued, it stops the currently running
+  task early, executes the VIP task, then resumes or drops the
+  interrupted task as required.
+& VIP task object
+& Interrupted task dropped or re-queued at the front; VIP task executed
+& Ensures critical tasks are completed promptly. \\
+\midrule
+
+Raspberry Pi Pico
+& Microcontroller board to which buttons, LEDs, and the LCD screen are
+  connected.
+& Physical buttons, LEDs, LCD screen
+& Buttons light up and react on press; LCD shows system state in a
+  human-readable way
+& Provides a tangible demonstration of the scheduler so the audience can
+  visualise and understand it. \\
+\midrule
+
+Button (connected to Pico)
+& A physical button that, when pressed, adds an element to the queue.
+& 0 (unpressed) / 1 (pressed)
+& When the button is pressed, a task will be enqueued into our Real-Time Scheduler
+& Offers an easy physical and visual representation of the scheduler for
+  the audience. \\
+\midrule
+
+LEDs (connected to Pico)
+& Two LEDs that react to button presses while the code runs.
+& Button press
+& One LED will light up when the button is pressed to show the queue, while the other LED will turn on to show that the entire system is on and working. 
+& Provides additional visual feedback for the audience. \\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+%% ─────────────────────────────────────────────
+\section*{OOP Design Table}
+
+The table below describes the Object-Oriented Programming structure of the
+system, identifying classes, attributes, methods, access modifiers, and
+data types.
+
+\subsection*{Class: Task}
+
+\begin{longtable}{P{3.5cm} P{3.5cm} P{7cm}}
+\toprule
+\textbf{Attribute / Method} & \textbf{Access / Data Type} & \textbf{Description} \\
+\midrule
+\endhead
+
+\texttt{name}       & \texttt{private / string}             & Name of the task. \\
+\texttt{priority}   & \texttt{private / priority\_level}    & Execution order (enum). \\
+\texttt{behavior}   & \texttt{private / interrupt\_behavior}& What happens if interrupted by a VIP task (enum). \\
+\texttt{queue}      & \texttt{protected / Queue\&}          & Reference to the queue so the task can enqueue itself. \\
+\texttt{getPriority()} & \texttt{public / priority\_level}  & Returns the task's priority. \\
+\texttt{getBehavior()} & \texttt{public / interrupt\_behavior} & Returns the task's interrupt behaviour. \\
+\texttt{getName()}  & \texttt{public / string}              & Returns the task's name. \\
+\texttt{execute()}  & \texttt{public virtual / void}        & Executes the task's action. \\
+\bottomrule
+\end{longtable}
+
+\subsection*{Class: Queue}
+
+\begin{longtable}{P{3.5cm} P{3.5cm} P{7cm}}
+\toprule
+\textbf{Attribute / Method} & \textbf{Access / Data Type} & \textbf{Description} \\
+\midrule
+\endhead
+
+\texttt{tasks}      & \texttt{private / Task*[]}        & Array holding pointers to queued tasks. \\
+\texttt{head}       & \texttt{private / volatile int}   & Index of the front of the queue. \\
+\texttt{tail}       & \texttt{private / volatile int}   & Index of the back of the queue. \\
+\texttt{full()}     & \texttt{bool}                     & Returns \texttt{true} if the queue is at capacity. \\
+\texttt{empty()}    & \texttt{bool}                     & Returns \texttt{true} if the queue has no tasks. \\
+\texttt{enqueue()}  & \texttt{void}                     & Adds a task to the back of the queue and checks if it is a VIP priority. \\
+\texttt{dequeue()}  & \texttt{Task*}                    & Scans the queue for the highest-priority task and returns it. \\
+\texttt{push\_front()} & \texttt{void}                  & Inserts a task at the front of the queue. \\
+\texttt{push\_back()}  & \texttt{void}                  & Inserts a task at the back of the queue. \\
+\bottomrule
+\end{longtable}
+
+\subsection*{Class: ButtonTask}
+
+\begin{longtable}{P{3.5cm} P{3.8cm} P{6.7cm}}
+\toprule
+\textbf{Attribute / Method} & \textbf{Access / Data Type} & \textbf{Description} \\
+\midrule
+\endhead
+
+\texttt{button\_pin}  & \texttt{private / int}                & GPIO pin number. \\
+\texttt{action}       & \texttt{private / void(*)()} & Function pointer executed when the button is pressed. \\
+\texttt{instance}     & \texttt{private static / ButtonTask*} & Static pointer to itself so the ISR can access the instance. \\
+\texttt{setup()}      & \texttt{public / void}                & Initialises the GPIO pin and registers the button callback. \\
+\texttt{execute()}    & \texttt{public / void}                & Calls the assigned function. \\
+\texttt{button\_isr()} & \texttt{private static / void}       & Debounces and enqueues the task on a button press. \\
+\bottomrule
+\end{longtable}
+
+\subsection*{Class: TimerTask}
+
+\begin{longtable}{P{3.5cm} P{3.8cm} P{6.7cm}}
+\toprule
+\textbf{Attribute / Method} & \textbf{Access / Data Type} & \textbf{Description} \\
+\midrule
+\endhead
+
+\texttt{interval\_ms}      & \texttt{private / uint32\_t}         & Interval for the timer interrupt in milliseconds. \\
+\texttt{timer}             & \texttt{private / repeating\_timer}  & Pico SDK struct holding internal timer state. \\
+\texttt{action}            & \texttt{private / void(*)()} & Function pointer executed when the timer fires. \\
+\texttt{start()}           & \texttt{private / void}              & Starts the repeating timer. \\
+\texttt{stop()}            & \texttt{public / void}               & Cancels the repeating timer. \\
+\texttt{execute()}         & \texttt{public / void}               & Calls the assigned function. \\
+\texttt{timer\_callback()} & \texttt{public static / bool}        & Enqueues the task each time the timer fires. \\
+\bottomrule
+\end{longtable}
+
+\paragraph{ }
+\subsection*{Class: DisplayTask}
+
+\begin{longtable}{P{3.5cm} P{3.8cm} P{6.7cm}}
+\toprule
+\textbf{Attribute / Method} & \textbf{Access / Data Type} & \textbf{Description} \\
+\midrule
+\endhead
+
+\texttt{Message}      & \texttt{private / string}         & Stores the string needed to be displayed. \\
+\texttt{char\_index}             & \texttt{private / int}  & Tracks where in the message the display is. \\
+\texttt{interval\_ms}            & \texttt{private / unit32\_t} & How long to wait between displaying each character. \\
+\texttt{timer}           & \texttt{private / repeating\_timer}              & Pico SDK struct that holds internal timer state \\
+\texttt{tick\_flag}            & \texttt{volatile private / bool}               & Set by ISR each interval to tell the run loop it can display a character \\
+\texttt{vip\_flag}            & \texttt{volatile private / bool}               & Tracks if there is a VIP task waiting \\
+
+\texttt{lcd\_toggle\_enable()} & \texttt{private / void}        & Toggles the enable pin of the LCD to latch data/commands \\
+\texttt{lcd\_send\_byte()} & \texttt{private/ void}        & Sends a byte to the LCD in 4-bit mode by splitting it into two nibbles. \\
+\texttt{lcd\_cmd()} & \texttt{private / void}        & Sends a command byte to the LCD \\
+\texttt{lcd\_char()} & \texttt{private / void}        & Sends a single character to the LCD for display \\
+\texttt{lcd\_string()} & \texttt{private / void}        & Displays a string on the LCD by sending each character. \\
+\texttt{lcd\_set\_cursor()} & \texttt{private / void}        & Sets the LCD cursor to the beginning of line 0 (top) or line 1 (bottom). \\
+\texttt{lcd\_clear()} & \texttt{private / void}        & Clears the LCD display and resets the cursor to home position. \\
+\texttt{lcd\_init()} & \texttt{private / void}        & Initializes the LCD in 4-bit mode with 2 lines, cursor off, and backlight on. \\
+\texttt{timer\_callback()} & \texttt{private / void}        & Timer ISR that sets tick\_flag to signal the main loop that it's time to display the next character. Returns true to keep the timer repeating. \\
+
+\texttt{setup()}         & \texttt{public / void}               & Initializes I2C communication, configures GPIO pins with pull-ups, initializes the LCD, and starts the repeating timer for character scrolling. \\
+\texttt{setMessage()}         & \texttt{public / void}               & Takes in a string and sets the message variable \\
+\texttt{execute()} & \texttt{public / void}        & Displays a substring of the message every time tick\_flag is true and checks if there is a VIP task pending. Increments the size of the substring every time. \\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+%% ─────────────────────────────────────────────
+\section*{System Overview}
+
+\subsection*{Input}
+The following data is provided to the system:
+\begin{itemize}[leftmargin=1.5em]
+    \item Button press (GPIO signal from the physical button on the Pico).
+    \item Repeating hardware timer firing at a fixed interval.
+\end{itemize}
+
+\subsection*{Process}
+The system processes input through the following steps:
+\begin{enumerate}[leftmargin=1.5em]
+    \item A hardware interrupt fires (button press or timer tick).
+    \item The Interrupt Service Routine (ISR) runs and enqueues the task.
+    \item \texttt{enqueue()} places the task at the back of the queue and checks whether it carries VIP priority.
+    \item A currently running task periodically checks for a pending VIP task; if one exists, the running task stops early.
+    \item The main loop dequeues and executes the highest-pr iority task.
+    \item After a VIP task finishes, the scheduler checks whether the interrupted task should be re-queued at the front (resume) or dropped, depending on its configured \texttt{interrupt\_behavior}.
+\end{enumerate}
+
+\subsection*{Output}
+The system produces the following outputs:
+\begin{itemize}[leftmargin=1.5em]
+    \item GPIO pin toggled (LED on/off) in response to task execution.
+    \item Serial debug output via USB confirming task execution, interruptions, and task resumptions.
+    \item Correct priority ordering verified through observed execution sequence.
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{SystemOverviewDiagram.png}
+    \caption{System Overview Diagram}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{ECEE2140_Circuit.png}
+    \caption{System Circuit Diagram}
+\end{figure}
+
+\end{document}
