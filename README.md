@@ -53,21 +53,50 @@ ISR Flag Pattern: Volatile boolean flags for interrupt signaling
 ```
 Real-Time_Task_Scheduler/
 │
+├── .vscode/
+│   └── c_cpp_properties.json
+│   └── cmake-kits.json
+│   └── extensions.json
+│   └── launch.json
+│   └── settings.json
+│   └── tasks.json
+├── Practice/
+│   └── Interupt
+│   └── SerialMonitor
+│   └── TaskClass
+│   └── blink
 ├── README.md
 ├── docs/
 │   └── ECEE2140 - Iteration2.pdf
-├── pseudocode/
-│   └──
+│   └── Class Interaction.pdf
+│   └── ProjectDesignOverview.tex
+│   └── System_Design_Overview.pdf
+├── images/
+│   └── system_diagram.png
 ├── include/
-│   └── 
+│   └── ButtonTask.h
+│   └── DisplayTask.h
+│   └── Queue.h
+│   └── Task.h
+│   └── TimerTask.h
+│   └── types.h
+│   └── utils.h
+├── pseudocode/
+│   └── PseudoCode.pdf
+│   └── PsuedoText.tex
 ├── src/
-│   ├── main.cpp
-│   └── [Name].cpp
-├── tests/
-│   └── [Test(s)
-└── README.md
+│   └── BusttonTask.cpp
+│   └── DisplayTask.cpp
+│   └── Queue.cpp
+│   └── Task.cpp
+│   └── TimerTask.cpp
+│   └── utils.cpp
+├── .gitignore
+├── CMakeLists.txt
+├── README.md
+├── main.cpp
+├── pico_sdk_import.cmake
+└── system_diagram.png
 ```
 ### Project Goals
-Create a Real-Time Task Scheduler that works on a queueing system and accepts interrupts
-
-## TBC
+Create a Real-Time Task Scheduler that works on a queueing system and accepts interrupts. Interrupts can be VIP tasks that run before a normal task. Our Real-Time Task Scheduler will be coded in C++, and for easy visualization and consistency, we use it with a Raspberry Pi Pico. This Raspberry Pi Pico has 2 LEDs, 1 button, and 1 LCD screen. 
