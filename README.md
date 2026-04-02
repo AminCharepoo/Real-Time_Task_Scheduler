@@ -67,5 +67,7 @@ Real-Time_Task_Scheduler/
 │   └── [Test(s)
 └── README.md
 ```
+### Project Goals
+Create a Real-Time Task Scheduler that works on a queueing system and accepts interrupts
 
 ## TBC
