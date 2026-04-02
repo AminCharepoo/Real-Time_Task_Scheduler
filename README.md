@@ -103,7 +103,7 @@ Real-Time_Task_Scheduler/
 └── system_diagram.png
 ```
 ### Project Goals
-Create a Real-Time Task Scheduler that works on a queueing system and accepts interrupts. Interrupts can be VIP tasks that run before a normal task. Our Real-Time Task Scheduler will be coded in C++, and for easy visualization and consistency, we use it with a Raspberry Pi Pico. This Raspberry Pi Pico has 2 LEDs, 1 button, and 1 LCD screen. 
+Create a Real-Time Task Scheduler that works on a queueing system and accepts interrupts. There are three types of tasks with three different priority levels (HIGH, LOW, VIP). VIP tasks interrupt currently running tasks and take priority. Our Real-Time Task Scheduler is coded in C++, and for easy visualization and consistency, we use it with a Raspberry Pi Pico. This Raspberry Pi Pico has 2 LEDs, 1 button, and 1 LCD screen. 
 
 ## Main Functionalities
 1. Priority based task scheduling 
