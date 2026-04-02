@@ -3,7 +3,11 @@ This project is a custom real-time task scheduler on the Raspberry Pi Pico using
 It manages multiple tasks with priorities and deadlines, can preempt tasks, and responds to hardware interrupts.  
 
 
-### Run command:
+## How to Build and Run
+- Wire the LCD, Buttons, and LEDS to respective pins based on code definitions
+- Hold BOOTSEL butotn on the Pico while conencting to USB
+- Copy the compiled and generated .uf2 file to teh Pico drive 
+- Restart power to the pico and it will automatically run the program
 
 ### OOP Design Summary
 OOP Design Summary
@@ -100,3 +104,54 @@ Real-Time_Task_Scheduler/
 ```
 ### Project Goals
 Create a Real-Time Task Scheduler that works on a queueing system and accepts interrupts. Interrupts can be VIP tasks that run before a normal task. Our Real-Time Task Scheduler will be coded in C++, and for easy visualization and consistency, we use it with a Raspberry Pi Pico. This Raspberry Pi Pico has 2 LEDs, 1 button, and 1 LCD screen. 
+
+## Main Functionalities
+1. Priority based task scheduling 
+- Circular buffer queue with priority dequeuing
+- 3 Priority levels: HIGH, MEDIUM, LOW
+- Special priority: VIP
+2. Multiple Task Types
+- Button Task: GPIO interrupt
+- Timer Task: Periodic timer-based task
+- Display Task: LCD Character by Character display
+3. VIP Interrupts
+- A VIP task being queued stops a display task
+4. Hardware Interface
+- GPIO button interrupts for user input
+- 16x2 LCD Display 
+- LED status indicators
+
+## How to Build and Run
+- Wire the LCD, Buttons, and LEDS to respective pins based on code definitions
+- Hold BOOTSEL butotn on the Pico while conencting to USB
+- Copy the compiled and generated .uf2 file to teh Pico drive 
+- Restart power to the pico and it will automatically run the program
+
+
+## Tools and Technologies
+### Hardware
+- Microcontroller: Raspberry Pi Pico
+- 16x2 LCD Display
+- GPIO Button
+- LEDs
+
+### Software 
+- Language: C++ 
+- SDK: Raspberry Pi Pico SDK
+- Libraries 
+    - hardware/gpio.h
+    - hardware/timer.h
+    - hardware/sync.h
+    - pico_stdlib
+
+### What has been implemented so far
+- Core Scheduler System
+    - Queue class with circular buffer
+    - Priority scanning 
+    - Interrupt aware and able to resume tasks interrupted. 
+- Task System
+    - Base Task class
+    - 3 Children: ButtonTask for input queueing, TimerTask for periodic queueing, and DisplayTask to showcase VIP interrupts. 
+- Interrupt Handling
+    - Track VIP pending with a flag
+    - Main loop restores interrupted tasks
