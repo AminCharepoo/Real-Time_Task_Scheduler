@@ -1,0 +1,261 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in, bottom=1.5in}
+
+% ── CHANGE 1: allow long algorithms to break across pages ──────────────────
+\makeatletter
+\newenvironment{breakablealgorithm}
+  {
+   \begin{center}
+     \refstepcounter{algorithm}
+     \hrule height.8pt depth0pt \kern2pt
+     \renewcommand{\caption}[2][\relax]{
+       {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}
+       \ifx\relax##1\relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}
+       \else
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}
+       \fi
+       \kern2pt\hrule\kern2pt
+     }
+  }{
+     \kern2pt\hrule\relax
+   \end{center}
+  }
+\makeatother
+% ──────────────────────────────────────────────────────────────────────────
+
+\begin{document}
+
+% ─────────────────────────────────────────────
+% TYPES
+% ─────────────────────────────────────────────
+\begin{algorithm}
+\caption{Types and Enumerations}
+\begin{algorithmic}[1]
+\State \textbf{Enum} \textit{priority\_level}
+\State \hspace{0.5cm} LOW $\leftarrow$ 1
+\State \hspace{0.5cm} HIGH $\leftarrow$ 2
+\State \hspace{0.5cm} VIP $\leftarrow$ 3
+\State \textbf{End Enum}
+\vspace{0.3cm}
+\State \textbf{Enum} \textit{interrupt\_behavior}
+\State \hspace{0.5cm} DROP $\leftarrow$ 1
+\State \hspace{0.5cm} FRONT\_QUEUE $\leftarrow$ 2
+\State \textbf{End Enum}
+\end{algorithmic}
+\end{algorithm}
+
+% ─────────────────────────────────────────────
+% TASK (BASE CLASS)
+% ─────────────────────────────────────────────
+\begin{algorithm}
+\caption{Base Task Class}
+\begin{algorithmic}[1]
+\State \textbf{Class} \textit{Task}
+\State \hspace{0.5cm} \textbf{Private:}
+\State \hspace{1cm} \textit{name} $\rightarrow$ string
+\State \hspace{1cm} \textit{priority} $\rightarrow$ priority\_level
+\State \hspace{1cm} \textit{behavior} $\rightarrow$ interrupt\_behavior
+\State \hspace{0.5cm} \textbf{Protected:}
+\State \hspace{1cm} \textit{queue} $\rightarrow$ reference to Queue
+\State \hspace{0.5cm} \textbf{Public:}
+\State \hspace{1cm} \textbf{Constructor} Task(name, priority, behavior, queue)
+\State \hspace{1.5cm} Initialize all fields with given parameters
+\State \hspace{1cm} \textbf{End Constructor}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} getPriority() $\rightarrow$ priority\_level
+\State \hspace{1.5cm} \Return priority
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} getInterruptBehavior() $\rightarrow$ interrupt\_behavior
+\State \hspace{1.5cm} \Return behavior
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} getName() $\rightarrow$ string
+\State \hspace{1.5cm} \Return name
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Virtual Function} execute() \text{(overridden by child classes)}
+\State \textbf{End Class}
+\end{algorithmic}
+\end{algorithm}
+
+% ─────────────────────────────────────────────
+% QUEUE
+% ── CHANGE 2: \begin{algorithm} → \begin{breakablealgorithm} (and closing tag)
+% ─────────────────────────────────────────────
+\begin{breakablealgorithm}
+\caption{Queue Class (Circular Buffer with Priority Dequeue)}
+\begin{algorithmic}[1]
+\State \textbf{Class} \textit{Queue}
+\State \hspace{0.5cm} \textbf{Private:}
+\State \hspace{1cm} \textit{tasks[QUEUE\_SIZE]} $\rightarrow$ array of Task pointers
+\State \hspace{1cm} \textit{head} $\rightarrow$ volatile integer (front index)
+\State \hspace{1cm} \textit{tail} $\rightarrow$ volatile integer (rear index)
+\State \hspace{1cm} \textit{vip\_pending} $\rightarrow$ volatile boolean
+\State \hspace{0.5cm} \textbf{Public:}
+\State \hspace{1cm} \textbf{Constructor} Queue()
+\State \hspace{1.5cm} head $\leftarrow$ 0, \; tail $\leftarrow$ 0, \; vip\_pending $\leftarrow$ false
+\State \hspace{1cm} \textbf{End Constructor}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} full() $\rightarrow$ boolean
+\State \hspace{1.5cm} \Return $(tail + 1) \bmod \textit{QUEUE\_SIZE} = head$
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} empty() $\rightarrow$ boolean
+\State \hspace{1.5cm} \Return $head = tail$
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} push\_back(task)
+\State \hspace{1.5cm} \If{full()} \Return \EndIf
+\State \hspace{1.5cm} tasks[tail] $\leftarrow$ task
+\State \hspace{1.5cm} tail $\leftarrow$ $(tail + 1) \bmod \textit{QUEUE\_SIZE}$
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} push\_front(task)
+\State \hspace{1.5cm} \If{full()} \Return \EndIf
+\State \hspace{1.5cm} head $\leftarrow$ $(head - 1 + \textit{QUEUE\_SIZE}) \bmod \textit{QUEUE\_SIZE}$
+\State \hspace{1.5cm} tasks[head] $\leftarrow$ task
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} enqueue(task)
+\State \hspace{1.5cm} \If{full()} \Return \EndIf
+\State \hspace{1.5cm} \If{task.getPriority() $=$ VIP}
+\State \hspace{2cm} vip\_pending $\leftarrow$ true
+\State \hspace{1.5cm} \EndIf
+\State \hspace{1.5cm} push\_back(task)
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} dequeue() $\rightarrow$ Task
+\State \hspace{1.5cm} \If{empty()} \Return null \EndIf
+\State \hspace{1.5cm} highest\_index $\leftarrow$ head
+\State \hspace{1.5cm} \For{$i \leftarrow (head+1) \bmod \textit{QUEUE\_SIZE}$ \textbf{ to } $tail$ (circular)}
+\State \hspace{2cm} \If{tasks[$i$].getPriority() $>$ tasks[highest\_index].getPriority()}
+\State \hspace{2.5cm} highest\_index $\leftarrow i$
+\State \hspace{2cm} \EndIf
+\State \hspace{1.5cm} \EndFor
+\State \hspace{1.5cm} task $\leftarrow$ tasks[highest\_index]
+\State \hspace{1.5cm} tasks[highest\_index] $\leftarrow$ tasks[head]
+\State \hspace{1.5cm} head $\leftarrow$ $(head + 1) \bmod \textit{QUEUE\_SIZE}$
+\State \hspace{1.5cm} \Return task
+\State \hspace{1cm} \textbf{End Function}
+\State \textbf{End Class}
+\end{algorithmic}
+\end{breakablealgorithm}
+
+% ─────────────────────────────────────────────
+% BUTTONTASK
+% ─────────────────────────────────────────────
+\begin{algorithm}
+\caption{ButtonTask Class (GPIO Interrupt-Driven Task)}
+\begin{algorithmic}[1]
+\State \textbf{Class} \textit{ButtonTask} \textbf{extends} \textit{Task}
+\State \hspace{0.5cm} \textbf{Private:}
+\State \hspace{1cm} \textit{button\_pin} $\rightarrow$ integer
+\State \hspace{1cm} \textit{action} $\rightarrow$ function pointer (called on execution)
+\State \hspace{1cm} \textit{instance} $\rightarrow$ static pointer to ButtonTask (for ISR access)
+\State \hspace{0.5cm} \textbf{Public:}
+\State \hspace{1cm} \textbf{Constructor} ButtonTask(name, priority, behavior, button\_pin, action, queue)
+\State \hspace{1.5cm} Call Task constructor with (name, priority, behavior, queue)
+\State \hspace{1.5cm} Initialize button\_pin and action
+\State \hspace{1.5cm} instance $\leftarrow$ this
+\State \hspace{1cm} \textbf{End Constructor}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} setup()
+\State \hspace{1.5cm} Initialize GPIO pin as input with pull-up resistor
+\State \hspace{1.5cm} Register button\_isr on falling-edge interrupt for button\_pin
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} execute() \textit{(overrides Task)}
+\State \hspace{1.5cm} \If{action $\neq$ null} invoke action() \EndIf
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Static Function} button\_isr(gpio, events)
+\State \hspace{1.5cm} now $\leftarrow$ current time in milliseconds
+\State \hspace{1.5cm} \If{now $-$ last\_press $<$ 200} \Return \EndIf
+\State \hspace{1.5cm} last\_press $\leftarrow$ now
+\State \hspace{1.5cm} instance.queue.enqueue(instance) \quad 
+\State \hspace{1cm} \textbf{End Static Function}
+\State \textbf{End Class}
+\end{algorithmic}
+\end{algorithm}
+
+% ─────────────────────────────────────────────
+% TIMERTASK
+% ─────────────────────────────────────────────
+\begin{algorithm}
+\caption{TimerTask Class (Repeating Timer Task)}
+\begin{algorithmic}[1]
+\State \textbf{Class} \textit{TimerTask} \textbf{extends} \textit{Task}
+\State \hspace{0.5cm} \textbf{Private:}
+\State \hspace{1cm} \textit{interval\_ms} $\rightarrow$ unsigned 32-bit integer
+\State \hspace{1cm} \textit{timer} $\rightarrow$ repeating\_timer structure
+\State \hspace{1cm} \textit{action} $\rightarrow$ function pointer (called on execution)
+\State \hspace{0.5cm} \textbf{Public:}
+\State \hspace{1cm} \textbf{Constructor} TimerTask(name, priority, behavior, interval\_ms, action, queue)
+\State \hspace{1.5cm} Call Task constructor with (name, priority, behavior, queue)
+\State \hspace{1.5cm} Initialize interval\_ms and action
+\State \hspace{1cm} \textbf{End Constructor}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} start()
+\State \hspace{1.5cm} Register timer\_callback to fire every interval\_ms milliseconds
+\State \hspace{1.5cm} Pass \textit{this} as user data so callback can recover the TimerTask instance
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} stop()
+\State \hspace{1.5cm} Cancel the repeating timer
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Function} execute() \textit{(overrides Task)}
+\State \hspace{1.5cm} \If{action $\neq$ null} invoke action() \EndIf
+\State \hspace{1cm} \textbf{End Function}
+\vspace{0.3cm}
+\State \hspace{1cm} \textbf{Static Function} timer\_callback(timer\_struct) $\rightarrow$ boolean
+\State \hspace{1.5cm} task $\leftarrow$ TimerTask instance recovered from timer\_struct.user\_data
+\State \hspace{1.5cm} task.queue.enqueue(task) \quad
+\State \hspace{1.5cm} \Return true \quad 
+\State \hspace{1cm} \textbf{End Static Function}
+\State \textbf{End Class}
+\end{algorithmic}
+\end{algorithm}
+
+% ─────────────────────────────────────────────
+% MAIN LOOP
+% ─────────────────────────────────────────────
+\begin{algorithm}
+\caption{Main Loop}
+\begin{algorithmic}[1]
+\State Initialize all peripherals (stdio, GPIO, LEDs)
+\State queue $\leftarrow$ new Queue
+\State timer1 $\leftarrow$ new TimerTask(``Timer1'', LOW, DROP, 500ms, toggle\_led1, queue)
+\State button $\leftarrow$ new ButtonTask(``Button1'', HIGH, FRONT\_QUEUE, pin 16, toggle\_led2, queue)
+\State timer1.start()
+\State button.setup()
+\State interrupted\_task $\leftarrow$ null
+\vspace{0.3cm}
+\While{true}
+    \State t $\leftarrow$ queue.dequeue() 
+    \If{t $\neq$ null}
+        \State t.execute()
+        \If{queue.isVipPending() \textbf{and} t.getInterruptBehavior() $=$ FRONT\_QUEUE}
+            \State interrupted\_task $\leftarrow$ t \quad \textit{(save for re-queueing after VIP completes)}
+        \EndIf
+        \If{t.getPriority() $=$ VIP}
+            \State queue.clearVipPending()
+            \If{interrupted\_task $\neq$ null}
+                \State queue.push\_front(interrupted\_task) \quad \textit{(restore preempted task)}
+                \State interrupted\_task $\leftarrow$ null
+            \EndIf
+        \EndIf
+    \Else
+        \State Run tight loop \quad \textit{(idle / power save)}
+    \EndIf
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}

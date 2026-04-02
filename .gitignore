@@ -1,0 +1,4 @@
+
+build/
+!.vscode/*
+(Rename Classes.cpp to main.cpp)
