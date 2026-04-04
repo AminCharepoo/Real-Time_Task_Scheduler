@@ -20,9 +20,9 @@ int main()
     Queue queue;
 
     TimerTask timer1("Timer1", LOW, DROP, 500, toggle_led1, queue);
-    ButtonTask button("Button1", HIGH, FRONT_QUEUE, 16, toggle_led2, queue);
+    ButtonTask button("Button1", HIGH, FRONT_QUEUE, 11, toggle_led2, queue);
     DisplayTask display("Display1", LOW, FRONT_QUEUE, "Hello, World! ", 3, 300, queue);
-    ButtonTask button2("Button2", VIP, FRONT_QUEUE, 17, [&display]() {
+    ButtonTask button2("Button2", VIP, FRONT_QUEUE, 9, [&display]() {
     display.displayVipMessage("VIP Message!"); }, queue);
 
     timer1.start();

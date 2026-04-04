@@ -9,8 +9,8 @@
 
 #define I2C_PORT i2c0
 #define LCD_ADDR 0x3F
-#define SDA_PIN 19
-#define SCL_PIN 21
+#define SDA_PIN 4
+#define SCL_PIN 5
 
 class DisplayTask : public Task {
 private:

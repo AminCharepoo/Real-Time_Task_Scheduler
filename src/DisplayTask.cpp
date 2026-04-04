@@ -116,23 +116,22 @@ bool DisplayTask::timer_callback(struct repeating_timer *t) {
 
 void DisplayTask::execute() {
     is_running = true;
-
-    for (int i = 0; i < chars_per_execute; i++) {
-        while (!tick_flag) {
-            if (queue.isVipPending()) return;
-        }
-        tick_flag = false;
-
-        char_index++;
-        if (char_index > message.length()) {
-            char_index = 0;
-        }
-
-        lcd_clear();
-        lcd_set_cursor(0);
-        lcd_string(message.substr(0, char_index).c_str());
+    
+    if (!tick_flag) {
+        is_running = false;
+        return; // Nothing to do yet
     }
-
+    
+    tick_flag = false;
+    char_index++;
+    if (char_index > message.length()) {
+        char_index = 0;
+    }
+    
+    lcd_clear();
+    lcd_set_cursor(0);
+    lcd_string(message.substr(0, char_index).c_str());
+    
     is_running = false;
 }
 
