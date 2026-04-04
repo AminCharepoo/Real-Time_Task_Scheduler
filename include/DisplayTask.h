@@ -4,7 +4,7 @@
 #include "Task.h"
 #include <string>
 #include "pico/stdlib.h"
-#include "hardware/timer.h"
+#include "pico/time.h"
 #include "hardware/i2c.h"
 
 #define I2C_PORT i2c0
@@ -17,14 +17,13 @@ private:
     // display state
     std::string message;
     unsigned int char_index;
+    unsigned int chars_per_execute;
     
     // timing
     uint32_t interval_ms;
     struct repeating_timer timer;
     volatile bool tick_flag;
-    
-    // VIP preemption
-    volatile bool* vip_flag;
+    volatile bool is_running;
     
     // LCD low-level functions
     void lcd_toggle_enable(uint8_t data);
@@ -45,8 +44,8 @@ public:
         priority_level priority, 
         interrupt_behavior behavior, 
         const std::string& msg, 
+        const unsigned int chars_per_execute,
         uint32_t interval_ms, 
-        volatile bool* vip_flag,
         Queue& q
     );
 
@@ -56,6 +55,6 @@ public:
     void execute() override;
 
     void setMessage(const std::string& msg);
+    void displayVipMessage(const std::string& vip_msg);
 };
-
 #endif

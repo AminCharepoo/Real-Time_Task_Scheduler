@@ -5,15 +5,17 @@ DisplayTask::DisplayTask(
         priority_level priority, 
         interrupt_behavior behavior, 
         const std::string& msg, 
+        const unsigned int chars_per_execute,
         uint32_t interval_ms, 
-        volatile bool* vip_flag,
         Queue& q
     ) : Task(name, priority, behavior, q),
       message(msg),
       char_index(0),
+      chars_per_execute(chars_per_execute),
       interval_ms(interval_ms),
       tick_flag(false),
-      vip_flag(vip_flag) {
+      is_running(false)
+      {
 }
 
 
@@ -106,37 +108,41 @@ void DisplayTask::setup() {
 bool DisplayTask::timer_callback(struct repeating_timer *t) {
     DisplayTask* task = static_cast<DisplayTask*>(t->user_data);
     task->tick_flag = true;
+    if (!task->is_running) {
+        task->queue.enqueue(task);
+    }
     return true;
 }
 
 void DisplayTask::execute() {
-    // Check VIP preemption
-    if (*vip_flag) {
-        return;
+    is_running = true;
+
+    for (int i = 0; i < chars_per_execute; i++) {
+        while (!tick_flag) {
+            if (queue.isVipPending()) return;
+        }
+        tick_flag = false;
+
+        char_index++;
+        if (char_index > message.length()) {
+            char_index = 0;
+        }
+
+        lcd_clear();
+        lcd_set_cursor(0);
+        lcd_string(message.substr(0, char_index).c_str());
     }
-    
-    // Check if it's time to update
-    if (!tick_flag) {
-        return;
-    }
-    tick_flag = false;
-    
-    // increment char index
-    char_index++;
-    if (char_index > message.length()) {
-        char_index = 0;
-    }
-    
-    // Get substring (0 to char_index)
-    std::string display_str = message.substr(0, char_index);
-    
-    // Display substring
-    lcd_clear();
-    lcd_set_cursor(0);
-    lcd_string(display_str.c_str());
+
+    is_running = false;
 }
 
-DisplayTask::setMessage(const std::string& msg) {
+void DisplayTask::setMessage(const std::string& msg) {
     message = msg;
     char_index = 0; // reset index to start of new message
+}
+
+void DisplayTask::displayVipMessage(const std::string& vip_msg) {
+    lcd_clear();
+    lcd_set_cursor(0);
+    lcd_string(vip_msg.c_str());
 }
