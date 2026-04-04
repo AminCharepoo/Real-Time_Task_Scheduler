@@ -42,6 +42,7 @@ add_executable(Classes
     src/Task.cpp
     src/TimerTask.cpp
     src/utils.cpp
+    src/DisplayTask.cpp
 )
 
 pico_set_program_name(Classes "Classes")
@@ -55,7 +56,10 @@ pico_enable_stdio_usb(Classes 1)
 target_link_libraries(Classes
         pico_stdlib
         hardware_gpio
-        hardware_timer)
+        hardware_timer
+        hardware_i2c
+)
+
 
 # Add the standard include files to the build
 target_include_directories(Classes PRIVATE

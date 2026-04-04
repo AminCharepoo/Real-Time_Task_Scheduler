@@ -5,7 +5,7 @@ ButtonTask::ButtonTask(
     priority_level priority, 
     interrupt_behavior behavior, 
     int button_pin, 
-    void (*action)(),
+    std::function<void()> action,
     Queue& queue
     ) : 
     Task(name, priority, behavior, queue), 

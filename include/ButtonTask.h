@@ -4,12 +4,13 @@
 #include "Task.h"
 #include "hardware/gpio.h"
 #include "pico/time.h"
+#include <functional>
 
 class ButtonTask : public Task 
 {
 private:
     int button_pin;
-    void (*action) (); // function pointer for the action to perform on button press
+    std::function<void()> action; // function pointer for the action to perform on button press
     static ButtonTask* instance; // static instance pointer for ISR access
 public:
     ButtonTask(
@@ -17,7 +18,7 @@ public:
         priority_level priority, 
         interrupt_behavior behavior, 
         int button_pin, 
-        void (*action)(), 
+        std::function<void()> action, 
         Queue& queue
     );
     
