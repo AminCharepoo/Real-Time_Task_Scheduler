@@ -8,7 +8,7 @@
 #include "hardware/i2c.h"
 
 #define I2C_PORT i2c0
-#define LCD_ADDR 0x3F
+#define LCD_ADDR 0x27
 #define SDA_PIN 4
 #define SCL_PIN 5
 
@@ -24,6 +24,9 @@ private:
     struct repeating_timer timer;
     volatile bool tick_flag;
     volatile bool is_running;
+
+    uint32_t last_vip_time;
+    uint32_t vip_display_duration_ms;
     
     // LCD low-level functions
     void lcd_toggle_enable(uint8_t data);

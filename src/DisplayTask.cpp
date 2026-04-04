@@ -14,7 +14,9 @@ DisplayTask::DisplayTask(
       chars_per_execute(chars_per_execute),
       interval_ms(interval_ms),
       tick_flag(false),
-      is_running(false)
+      is_running(false),
+      last_vip_time(0),
+      vip_display_duration_ms(2000) // display VIP message for 2 seconds
       {
 }
 
@@ -116,8 +118,10 @@ bool DisplayTask::timer_callback(struct repeating_timer *t) {
 
 void DisplayTask::execute() {
     is_running = true;
+
+    uint32_t now = to_ms_since_boot(get_absolute_time());
     
-    if (!tick_flag) {
+    if (!tick_flag || (now - last_vip_time < vip_display_duration_ms)) { // if it's not time to update or we're still within the VIP display duration, just return
         is_running = false;
         return; // Nothing to do yet
     }
@@ -144,4 +148,6 @@ void DisplayTask::displayVipMessage(const std::string& vip_msg) {
     lcd_clear();
     lcd_set_cursor(0);
     lcd_string(vip_msg.c_str());
+    last_vip_time = to_ms_since_boot(get_absolute_time()); // record the time we displayed the VIP message
+
 }

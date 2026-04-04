@@ -11,7 +11,7 @@ class ButtonTask : public Task
 private:
     int button_pin;
     std::function<void()> action; // function pointer for the action to perform on button press
-    static ButtonTask* instance; // static instance pointer for ISR access
+    static ButtonTask* instance[30]; // static instance pointer for ISR access (supports 30 GPIO pins)
 public:
     ButtonTask(
         std::string name, 

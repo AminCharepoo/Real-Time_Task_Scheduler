@@ -28,11 +28,15 @@ void Queue::enqueue(Task* task) { // have to implement enqueue here since it nee
 
 Task* Queue::dequeue() {
     if (empty()) return nullptr;
+    printf("Queue: ");
 
     int highest_priority_index = head; 
+    printf("%s | ", tasks[highest_priority_index]->getName().c_str());
     for (int i = (head + 1) % QUEUE_SIZE; i != tail; i = (i+1) % QUEUE_SIZE) {
+        printf("%s | ", tasks[i]->getName().c_str());
         if (tasks[i]->getPriority() > tasks[highest_priority_index]->getPriority()) { highest_priority_index = i; }
     }
+    printf("\n");
 
     Task* task = tasks[highest_priority_index]; // get task at head
     tasks[highest_priority_index] = tasks[head];
