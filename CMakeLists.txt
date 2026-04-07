@@ -34,6 +34,7 @@ project(Classes C CXX ASM)
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
+add_compile_options(-Wall)
 
 add_executable(Classes 
     main.cpp 
