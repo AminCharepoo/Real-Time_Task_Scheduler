@@ -37,7 +37,8 @@ pico_sdk_init()
 add_compile_options(-Wall)
 
 add_executable(Classes 
-    main.cpp 
+    main.cpp
+    src/Cases.cpp
     src/ButtonTask.cpp
     src/Queue.cpp
     src/Task.cpp
