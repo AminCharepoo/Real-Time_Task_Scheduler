@@ -45,7 +45,7 @@ void setupCase(CaseMode mode, Queue& queue)
         case DEFAULT_MODE:
             timer1 = new TimerTask("Timer1", LOW, DROP, 500, toggle_led1, queue);
             button1 = new ButtonTask("Button1", HIGH, FRONT_QUEUE, 11, toggle_led2, queue);
-            display1 = new DisplayTask("Display1", HIGH, FRONT_QUEUE, "Hello, World! ", 16, 300, queue);
+            display1 = new DisplayTask("Display1", HIGH, FRONT_QUEUE, "Hello, World! ", 300, queue);
 
             button2 = new ButtonTask(
                 "Button2",
@@ -73,7 +73,6 @@ void setupCase(CaseMode mode, Queue& queue)
                 LOW,
                 FRONT_QUEUE,
                 "THIS MESSAGE IS TOO LONG FOR THE LCD SCREEN",
-                3,
                 300,
                 queue
             );
@@ -111,7 +110,6 @@ void setupCase(CaseMode mode, Queue& queue)
                 LOW,
                 FRONT_QUEUE,
                 "Queue Empty   ",
-                16,
                 500,
                 queue
             );

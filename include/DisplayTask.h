@@ -17,7 +17,6 @@ private:
     // display state
     std::string message;
     unsigned int char_index;
-    const unsigned int chars_per_execute;
     
     // timing
     uint32_t interval_ms;
@@ -47,7 +46,6 @@ public:
         priority_level priority, 
         interrupt_behavior behavior, 
         const std::string& msg, 
-        const unsigned int chars_per_execute,
         uint32_t interval_ms, 
         Queue& q
     );

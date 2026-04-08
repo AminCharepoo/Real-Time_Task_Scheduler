@@ -5,12 +5,10 @@ DisplayTask::DisplayTask(
         priority_level priority, 
         interrupt_behavior behavior, 
         const std::string& msg, 
-        const unsigned int chars_per_execute,
         uint32_t interval_ms, 
         Queue& q
     ) : Task(name, priority, behavior, q),
       char_index(0),
-      chars_per_execute(chars_per_execute),
       interval_ms(interval_ms),
       tick_flag(false),
       is_running(false),
@@ -128,6 +126,11 @@ void DisplayTask::execute() {
     if (!tick_flag || (now - last_vip_time < vip_display_duration_ms)) { // if it's not time to update or we're still within the VIP display duration, just return
         is_running = false;
         return; // Nothing to do yet
+    }
+
+    if (queue.isVipPending()) {
+        is_running = false;
+        return; // Let the VIP message take precedence
     }
     
     tick_flag = false;

@@ -29,25 +29,25 @@ int main()
     while (true) {
         Task* t = queue.dequeue();
 
-        if (t == nullptr) {
+        if (t) {
+            t->execute();
+    
+            if (queue.isVipPending() && t->getInterruptBehavior() == FRONT_QUEUE) {
+                interrupted_task = t;
+            }
+    
+            if (t->getPriority() == VIP) {
+                queue.clearVipPending();
+                if (interrupted_task) {
+                    queue.push_front(interrupted_task);
+                    interrupted_task = nullptr;
+                }
+            }
+        } else {
             printf("Queue empty - idle state\n");
             sleep_ms(100);
             tight_loop_contents();
             continue;
-        }
-
-        t->execute();
-
-        if (queue.isVipPending() && t->getInterruptBehavior() == FRONT_QUEUE) {
-            interrupted_task = t;
-        }
-
-        if (t->getPriority() == VIP) {
-            queue.clearVipPending();
-            if (interrupted_task) {
-                queue.push_front(interrupted_task);
-                interrupted_task = nullptr;
-            }
         }
     }
 
