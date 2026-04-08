@@ -1,4 +1,5 @@
 #include "Cases.h"
+#include "Queue.h"
 #include "TimerTask.h"
 #include "ButtonTask.h"
 #include "DisplayTask.h"
@@ -6,7 +7,6 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 
-// Keep objects alive for the full program
 static TimerTask* timer1 = nullptr;
 static ButtonTask* button1 = nullptr;
 static DisplayTask* display1 = nullptr;
@@ -14,10 +14,34 @@ static ButtonTask* button2 = nullptr;
 static TimerTask* timer2 = nullptr;
 static TimerTask* timer3 = nullptr;
 
+void cleanupCase()
+{
+    delete timer1;
+    timer1 = nullptr;
+
+    delete button1;
+    button1 = nullptr;
+
+    delete display1;
+    display1 = nullptr;
+
+    delete button2;
+    button2 = nullptr;
+
+    delete timer2;
+    timer2 = nullptr;
+
+    delete timer3;
+    timer3 = nullptr;
+}
+
 void setupCase(CaseMode mode, Queue& queue)
 {
-    switch (mode) {
+    // In case setupCase is ever called more than once,
+    // clean old objects first
+    cleanupCase();
 
+    switch (mode) {
         case DEFAULT_MODE:
             timer1 = new TimerTask("Timer1", LOW, DROP, 500, toggle_led1, queue);
             button1 = new ButtonTask("Button1", HIGH, FRONT_QUEUE, 11, toggle_led2, queue);
@@ -28,7 +52,7 @@ void setupCase(CaseMode mode, Queue& queue)
                 VIP,
                 FRONT_QUEUE,
                 9,
-                [=]() {
+                []() {
                     if (display1) {
                         display1->displayVipMessage("VIP Message!");
                     }
@@ -40,7 +64,6 @@ void setupCase(CaseMode mode, Queue& queue)
             button1->setup();
             display1->setup();
             button2->setup();
-
             printf("Running DEFAULT_MODE\n");
             break;
 
@@ -60,7 +83,7 @@ void setupCase(CaseMode mode, Queue& queue)
                 VIP,
                 FRONT_QUEUE,
                 9,
-                [=]() {
+                []() {
                     if (display1) {
                         display1->displayVipMessage("VIP Message!");
                     }
@@ -70,7 +93,6 @@ void setupCase(CaseMode mode, Queue& queue)
 
             display1->setup();
             button2->setup();
-
             printf("Running EDGE_CASE_1\n");
             break;
 
@@ -80,24 +102,22 @@ void setupCase(CaseMode mode, Queue& queue)
 
             timer2->start();
             timer3->start();
-
             printf("Running EDGE_CASE_2\n");
             break;
 
         case EDGE_CASE_3:
             display1 = new DisplayTask(
-                "Empty",
+                "EmptyDisplay",
                 LOW,
                 FRONT_QUEUE,
-                "Queue Empty",
-                12,
-                300,
+                "Queue Empty   ",
+                16,
+                500,
                 queue
             );
 
             display1->setup();
-
             printf("Running EDGE_CASE_3\n");
             break;
-            }
+    }
 }

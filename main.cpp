@@ -20,7 +20,6 @@ int main()
     gpio_set_dir(LED2_PIN, GPIO_OUT);
 
     Queue queue;
-
     setupCase(CURRENT_MODE, queue);
 
     printf("Setup complete\n");
@@ -32,6 +31,7 @@ int main()
 
         if (t == nullptr) {
             printf("Queue empty - idle state\n");
+            sleep_ms(100);
             tight_loop_contents();
             continue;
         }
@@ -44,7 +44,6 @@ int main()
 
         if (t->getPriority() == VIP) {
             queue.clearVipPending();
-
             if (interrupted_task) {
                 queue.push_front(interrupted_task);
                 interrupted_task = nullptr;
@@ -52,5 +51,6 @@ int main()
         }
     }
 
+    cleanupCase();
     return 0;
 }

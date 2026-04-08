@@ -14,5 +14,7 @@ enum CaseMode {
 
 // Function to set up the selected case
 void setupCase(CaseMode mode, Queue& queue);
+// Function to clean up any dynamically allocated objects
+void cleanupCase();
 
 #endif
