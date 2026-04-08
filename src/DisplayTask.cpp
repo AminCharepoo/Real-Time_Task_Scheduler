@@ -9,7 +9,6 @@ DisplayTask::DisplayTask(
         uint32_t interval_ms, 
         Queue& q
     ) : Task(name, priority, behavior, q),
-      message(msg),
       char_index(0),
       chars_per_execute(chars_per_execute),
       interval_ms(interval_ms),
@@ -18,6 +17,11 @@ DisplayTask::DisplayTask(
       last_vip_time(0),
       vip_display_duration_ms(2000) // display VIP message for 2 seconds
       {
+        if (msg.length() > 16) {
+            message = "MSG TOO LONG!"; // truncate message if it's too long for the LCD
+        } else {
+            message = msg;
+        }
 }
 
 

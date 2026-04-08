@@ -17,6 +17,7 @@ private:
     // display state
     std::string message;
     unsigned int char_index;
+    const unsigned int chars_per_execute;
     
     // timing
     uint32_t interval_ms;
